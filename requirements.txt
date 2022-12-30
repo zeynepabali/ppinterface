@@ -1,3 +1,4 @@
+biopython
 stmol
 py3Dmol
 streamlit-aggrid
