@@ -1,0 +1,4 @@
+pfam_data.json
+pdb_holdings_data.json
+*.log
+python_submit.sh

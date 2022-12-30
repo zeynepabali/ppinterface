@@ -1,0 +1,87 @@
+with st.sidebar:
+    st.subheader('Filter Structures Table')
+
+    show_interface_num = st.checkbox("Filter by number of interfaces")
+
+    if show_interface_num:
+        filter_interface_num = st.slider("Slide to select a minimum and a maximum value",
+                                         min(pdb_df.num_interface), max(pdb_df.num_interface),
+                                         (min(pdb_df.num_interface), max(pdb_df.num_interface)),
+                                         label_visibility='collapsed')
+
+        pdb_df = pdb_df[np.logical_and(pdb_df.num_interface >= filter_interface_num[0],
+                                       pdb_df.num_interface <= filter_interface_num[1])]
+        int_df = int_df[int_df.pdb_id.isin(pdb_df.pdb_id)]
+
+    show_resolution = st.checkbox("Filter by resolution")
+
+    if show_resolution:
+        filter_resolution = st.slider("Slide to select a minimum and a maximum value",
+                                      min(pdb_df.resolution), max(pdb_df.resolution),
+                                      (min(pdb_df.resolution), max(pdb_df.resolution)),
+                                      label_visibility='collapsed')
+
+        pdb_df = pdb_df[np.logical_and(pdb_df.resolution >= filter_resolution[0],
+                                       pdb_df.resolution <= filter_resolution[1])]
+        int_df = int_df[int_df.pdb_id.isin(pdb_df.pdb_id)]
+
+    show_date = st.checkbox("Filter by accession date")
+
+    if show_date:
+        column2 = st.columns(2)
+
+        with column2[0]:
+            min_date = st.date_input("Date from", min(pdb_df['accession_date']))
+
+        with column2[1]:
+            max_date = st.date_input("Date until", max(pdb_df['accession_date']))
+
+        pdb_df = pdb_df[np.logical_and(pdb_df["accession_date"] >= min_date, pdb_df["accession_date"] <= max_date)]
+        int_df = int_df[int_df.pdb_id.isin(pdb_df.pdb_id)]
+
+    hide_obsolete = st.checkbox("Hide obsolete PDB structures")
+
+    if hide_obsolete:
+        pdb_df = pdb_df[pdb_df.status != "Obsolete"]
+        int_df = int_df[int_df.pdb_id.isin(pdb_df.pdb_id)]
+
+    st.markdown("---")
+    st.subheader('Filter Interfaces Table')
+
+    show_residue_num = st.checkbox("Filter by number of residues per interface")
+
+    if show_residue_num:
+        show_single = st.checkbox("Filter for one of the chains")
+
+        if show_single:
+            filter_single_res_num = st.slider("Filter for one of the chains",
+                                              min(min(int_df.num_chain_1), min(int_df.num_chain_2)),
+                                              max(max(int_df.num_chain_1), max(int_df.num_chain_2)), (
+                                                  min(min(int_df.num_chain_1), min(int_df.num_chain_2)),
+                                                  max(max(int_df.num_chain_1), max(int_df.num_chain_2))))
+
+            apply_to_both = st.checkbox("Apply to both of the chains")
+
+            if apply_to_both:
+                int_df = int_df[np.logical_and(np.logical_and(int_df.num_chain_1 >= filter_single_res_num[0],
+                                                              int_df.num_chain_1 <= filter_single_res_num[1]),
+                                               np.logical_and(int_df.num_chain_2 >= filter_single_res_num[0],
+                                                              int_df.num_chain_2 <= filter_single_res_num[1]))]
+            else:
+                int_df = int_df[np.logical_or(np.logical_and(int_df.num_chain_1 >= filter_single_res_num[0],
+                                                             int_df.num_chain_1 <= filter_single_res_num[1]),
+                                              np.logical_and(int_df.num_chain_2 >= filter_single_res_num[0],
+                                                             int_df.num_chain_2 <= filter_single_res_num[1]))]
+
+            pdb_df = pdb_df[pdb_df.pdb_id.isin(int_df.pdb_id)]
+
+        show_both = st.checkbox("Filter for total number of residues in both chains")
+
+        if show_both:
+            filter_both_res_num = st.slider("Filter for total number of residues in both chains",
+                                            min(int_df.total), max(int_df.total),
+                                            (min(int_df.total), max(int_df.total)))
+
+            int_df = int_df[
+                np.logical_and(int_df.total >= filter_both_res_num[0], int_df.total <= filter_both_res_num[1])]
+            pdb_df = pdb_df[pdb_df.pdb_id.isin(int_df.pdb_id)]
