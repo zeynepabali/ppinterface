@@ -15,7 +15,7 @@ from utils.tables import get_pdb_data, get_int_data, render_pdb_builder, render_
 import zipfile
 
 
-st.set_page_config(title="PPInterface", layout="wide")
+st.set_page_config(page_title="PPInterface", layout="wide")
 column3_2 = st.columns([3, 2])
 
 with column3_2[0]:
